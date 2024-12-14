@@ -28,7 +28,7 @@ def get_all_data(client):
 class DB:
     def __init__(self) -> None:
         self.client = redis_client
-        self.data = get_all_data(self.client)
+        self.data = self.load_all_data()
 
     def set_data(self, key, value):
         redis_client.set(key, value)
@@ -55,7 +55,15 @@ class DB:
                 break
         return keys
     
+    def load_all_data(self):
+        raw = get_all_data(self.client)
+        for key, emb_string in raw.items():
+            raw[key] = eval(emb_string)
+        return raw
+    
     def flush_database(self):
         redis_client.flushdb()
+
+    
 
 db = DB()

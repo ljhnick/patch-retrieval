@@ -1,9 +1,14 @@
 import numpy as np
 
+import time
+
 def late_interaction(data_emb, query_emb, aggregation="max"):
+
+    start_time = time.time()
+
     data_emb = np.array(data_emb)  # Shape: (n, 128)
     query_emb = np.array(query_emb)  # Shape: (m, 128)
-
+    
     if data_emb.shape[1] != 128 or query_emb.shape[1] != 128:
         raise ValueError("Embedding dimensions must be 128.")
 
@@ -17,4 +22,6 @@ def late_interaction(data_emb, query_emb, aggregation="max"):
         raise ValueError("Unsupported aggregation method. Use 'sum' or 'max'.")
 
     final_score = np.sum(final_scores)
+
+    # print(f"Time taken: {time.time() - start_time:.2f} seconds")
     return final_score

@@ -5,3 +5,4 @@ pydantic
 redis
 numpy
 pyrootutils
+gradio_client

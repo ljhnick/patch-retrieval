@@ -8,9 +8,32 @@ import time
 import numpy as np
 import pandas as pd
 import json
+import psutil
 
 from PIL import Image
 import matplotlib.pyplot as plt
+
+def measure_cpu_usage(func, *args, **kwargs):
+
+    # Start CPU usage monitoring
+    start_cpu_percent = psutil.cpu_percent(interval=None)
+    start_time = time.time()
+
+    # Execute the function
+    result = func(*args, **kwargs)
+
+    # Stop CPU usage monitoring
+    end_time = time.time()
+    end_cpu_percent = psutil.cpu_percent(interval=None)
+
+    cpu_usage = end_cpu_percent - start_cpu_percent
+    execution_time = end_time - start_time
+
+    return {
+        "result": result,
+        "cpu_usage_percent": cpu_usage,
+        "execution_time_seconds": execution_time
+    }
 
 
 def read_embeddings(embedding_file):
@@ -107,11 +130,16 @@ def main():
         base_url = args.base_url
         embeddings = read_embeddings(args.embedding_file)
         for idx, (query, embedding) in enumerate(embeddings.items()):
-            print(query)
             if args.num or args.num == 0:
                 if idx != args.num:
                     continue
+            print(query)
             response = query_with_embedding(args.base_url, embedding)
+
+            metrics = measure_cpu_usage(query_with_embedding, args.base_url, embedding)
+            response = metrics["result"]
+            cpu_usage = metrics["cpu_usage_percent"]
+            print(f"CPU usage: {cpu_usage}")
     else:
         response = query_with_text(args.base_url, args.query)
     end_time = time.time()
